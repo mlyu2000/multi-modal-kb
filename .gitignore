@@ -1,0 +1,29 @@
+# Database files
+db/
+*.db
+*.sqlite
+*.sqlite3
+
+# Neo4j database
+db/neo4j/
+db/neo4j/databases/
+
+# ChromaDB
+db/chroma/
+
+# Cache files
+__pycache__/
+*.pyc
+.env
+
+# Environment files (keep .env.example)
+.env
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
