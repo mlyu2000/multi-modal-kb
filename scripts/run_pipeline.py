@@ -16,6 +16,7 @@ from rag.vector_retriever import VectorRetriever
 
 
 def run_pipeline(video_id: str = None, video_url: str = None, 
+                 category: str = "general", school: str = "default",
                  run_build: bool = True, run_query: str = None):
     """
     Run the complete Trading KB pipeline.
@@ -45,7 +46,8 @@ def run_pipeline(video_id: str = None, video_url: str = None,
             return 0
         
         log_info(f"Step 1: Ingesting video ({video_id})...")
-        result = ingest_video(video_url or "", video_id=video_id)
+        result = ingest_video(video_url or "", video_id=video_id, 
+                            category=category, school_of_thought=school)
         
         if not result:
             log_error("Video ingestion failed")
@@ -137,6 +139,8 @@ def main():
     parser = argparse.ArgumentParser(description="Run Trading KB pipeline")
     parser.add_argument("--video-id", "-v", help="Video ID to process")
     parser.add_argument("--video-url", "-u", help="Video URL to download")
+    parser.add_argument("--category", "-c", default="general", help="Video category")
+    parser.add_argument("--school", "-s", default="default", help="School of thought")
     parser.add_argument("--skip-build", action="store_true", help="Skip knowledge graph build")
     parser.add_argument("--query", "-q", help="Run query after pipeline")
     parser.add_argument("--verbose", "-V", action="store_true", help="Verbose output")
@@ -146,6 +150,8 @@ def main():
     return run_pipeline(
         video_id=args.video_id,
         video_url=args.video_url,
+        category=args.category,
+        school=args.school,
         run_build=not args.skip_build,
         run_query=args.query
     )

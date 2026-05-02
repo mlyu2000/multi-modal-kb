@@ -20,6 +20,20 @@ from models.gemma_client import GemmaVisionClient
 
 
 class FrameDescriber:
+    def __init__(self, api_base: str = None, api_key: str = None, model: str = None,
+                 sqlite_store: SQLiteStore = None, file_store: FileStore = None,
+                 prompt_template: str = None, category: str = "general"):
+        self.api_base = api_base or settings.gemma_api_base
+        self.api_key = api_key or settings.gemma_api_key
+        self.model = model or settings.gemma_model
+        self.sqlite = sqlite_store or SQLiteStore()
+        self.files = file_store or FileStore()
+        self.category = category
+        # Use category-specific prompt if available
+        if category and category in VISUAL_PROMPTS:
+            self.prompt_template = VISUAL_PROMPTS[category]
+        else:
+            self.prompt_template = prompt_template or VISUAL_PROMPTS.get("general", "")
     """Describe visual content in frames."""
     
     def __init__(self, api_base: str = None, api_key: str = None, model: str = None,

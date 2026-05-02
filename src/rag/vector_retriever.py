@@ -162,3 +162,18 @@ class VectorRetriever:
             if md.get("category"):
                 categories.add(md["category"])
         return sorted(list(categories))
+
+    def get_schools(self) -> List[str]:
+        """Get all available schools of thought from ChromaDB collections."""
+        schools = set()
+        for collection in self.chroma_store.client.list_collections():
+            # Get metadata from first document in collection
+            try:
+                docs = collection.peek(limit=1)
+                if docs and docs.get("metadatas"):
+                    for md in docs["metadatas"]:
+                        if md.get("school"):
+                            schools.add(md["school"])
+            except:
+                pass
+        return sorted(list(schools))
