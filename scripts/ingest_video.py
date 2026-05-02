@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 """Ingest a video into the Trading KB."""
 
 import sys

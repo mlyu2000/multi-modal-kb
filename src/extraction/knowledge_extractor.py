@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 """Knowledge extraction module using Qwen model."""
 
 import os

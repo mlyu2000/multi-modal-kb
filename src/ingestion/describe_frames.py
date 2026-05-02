@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 """Visual description module using Gemma vision model."""
 
 import os
@@ -18,7 +23,8 @@ class FrameDescriber:
     """Describe visual content in frames."""
     
     def __init__(self, api_base: str = None, api_key: str = None, model: str = None,
-                 sqlite_store: SQLiteStore = None, file_store: FileStore = None):
+                 sqlite_store: SQLiteStore = None, file_store: FileStore = None,
+                 prompt_template: str = None):
         self.api_base = api_base or settings.gemma_api_base
         self.api_key = api_key or settings.gemma_api_key
         self.model = model or settings.gemma_model
@@ -31,6 +37,7 @@ class FrameDescriber:
         
         self.sqlite = sqlite_store or SQLiteStore()
         self.files = file_store or FileStore()
+        self.prompt_template = prompt_template or DEFAULT_VISUAL_PROMPT
     
     def describe_frames(self, video_id: str, prompt_file: str = None) -> Optional[List[Dict[str, Any]]]:
         """Describe visual content in frames.
@@ -83,11 +90,16 @@ class FrameDescriber:
             
             try:
                 # Get visual description
-                description = self.vision_client.describe_image(
-                    str(frame_path),
-                    prompt,
-                    system_prompt="You are analyzing a trading education video frame."
-                )
+                try:
+                    description = self.vision_client.describe_image(
+                        str(frame_path),
+                        prompt,
+                        system_prompt="You are analyzing a trading education video frame."
+                    )
+                except Exception as e:
+                    print(f"Warning: Visual description failed for {frame_path}: {e}. Continuing without it.")
+                    description = None
+                
                 
                 # Store in SQLite
                 self.sqlite.create_frame(
@@ -122,6 +134,22 @@ class FrameDescriber:
         return descriptions
     
     def _build_prompt(self, transcript: str, ocr_text: str, timestamp: float) -> str:
+        """Build prompt using configurable template."""
+        
+        base_prompt = self.prompt_template
+        context = f"""Transcript context (closest segment):
+{transcript[:500] if transcript else ''}
+
+OCR from this timestamp:
+{ocr_text}
+
+Timestamp in video: {timestamp:.2f} seconds
+
+Please analyze the visual content and connect it to the trading concepts shown."""
+        
+        return f"""{base_prompt}
+
+{context}"""
         """Build a prompt for visual description."""
         prompt = f"""You are analyzing a trading education video frame.
 Describe only what you see in this frame.

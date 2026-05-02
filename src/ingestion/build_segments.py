@@ -200,21 +200,34 @@ This segment from {video_id} covers content between {self._format_time(start_tim
                 chunk_start = None
         
         # Handle remaining content
-        if current_chunk:
+        if current_chunk and chunk_start is not None:
             segment_id = f"{video_id}_seg_{segment_count:03d}"
             chunk_end = max(s["end"] for s in current_chunk)
+            full_transcript = " ".join([s["text"] for s in current_chunk])
             
             segment = {
                 "segment_id": segment_id,
                 "video_id": video_id,
                 "start_time": chunk_start,
                 "end_time": chunk_end,
-                "transcript": " ".join([s["text"] for s in current_chunk]),
+                "transcript": full_transcript,
                 "ocr_text": "",
                 "visual_summary": "",
                 "keyframes": [],
                 "transcript_segments": current_chunk
             }
+            
+            # Save to SQLite
+            self.sqlite.create_segment(
+                segment_id=segment_id,
+                video_id=video_id,
+                start_time=chunk_start,
+                end_time=chunk_end,
+                transcript=full_transcript,
+                ocr_text="",
+                visual_summary="",
+                keyframes_json=json.dumps([])
+            )
             
             segments.append(segment)
         

@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 """Build knowledge graph from ingested videos."""
 
 import sys
@@ -22,7 +27,7 @@ def main():
     
     args = parser.parse_args()
     
-    print("Building Trading KB knowledge graph...")
+    logger.info("Building Trading KB knowledge graph...")
     print("-" * 40)
     
     # Initialize stores

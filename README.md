@@ -1,3 +1,30 @@
+# Multi-Modal Trading Knowledge Base
+
+## Current Status (Local Video Only)
+
+This repository is configured for **local video files only**. 
+YouTube URL ingestion has been removed per design requirement change.
+
+### Quick Start (Local Video)
+
+```bash
+# Initialize database
+python scripts/init_db.py
+
+# Ingest a local video file
+python scripts/ingest_video.py --file data/videos/example.mp4 --title "Example Video"
+
+# Build knowledge graph with embeddings (after ingestion completes)
+python scripts/build_kb.py --video-id example
+
+# Query the knowledge base
+python scripts/query_agent.py --query "Explain the main trading strategy"
+```
+
+Note: Visual description and knowledge extraction require running Ollama with Gemma and Qwen models.
+
+---
+
 # Trading Video Knowledge Base (Graph-first)
 
 A local-first multimodal knowledge base system that converts trading education videos into a structured knowledge graph with GraphRAG capabilities.
