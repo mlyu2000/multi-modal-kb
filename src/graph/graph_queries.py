@@ -164,3 +164,46 @@ class GraphQueries:
         if results:
             return results[0].get("result", {})
         return {"is_complete": False}
+
+
+    def search_knowledge_by_category(self, query: str, category: str, 
+                                     n_results: int = 5) -> List[Dict]:
+        """
+        Search knowledge graph with category filter.
+        
+        Args:
+            query: Search query text
+            category: Category to filter by
+            n_results: Maximum results to return
+        """
+        # First search by entity labels, then filter by category
+        results = self.driver.session().run("""
+            MATCH (e:Entity)-[:MENTIONED_IN]->(s:Segment)-[:PART_OF]->(v:Video)
+            WHERE s.text CONTAINS $query AND v.category = $category
+            RETURN e.name as entity, e.type as entity_type, 
+                   s.text as segment_text, v.category as category,
+                   s.start_sec as start, s.end_sec as end
+            LIMIT $n_results
+        """, query=query, category=category, n_results=n_results)
+        
+        return [dict(r) for r in results]
+
+    def get_category_stats(self) -> Dict[str, int]:
+        """Get segment counts by category."""
+        results = self.driver.session().run("""
+            MATCH (v:Video)
+            RETURN v.category as category, count(*) as segment_count
+            ORDER BY segment_count DESC
+        """)
+        
+        return {r["category"]: r["segment_count"] for r in results}
+
+    def get_school_of_thought_stats(self) -> Dict[str, int]:
+        """Get segment counts by school of thought."""
+        results = self.driver.session().run("""
+            MATCH (v:Video)
+            RETURN v.school_of_thought as school, count(*) as segment_count
+            ORDER BY segment_count DESC
+        """)
+        
+        return {r["school"]: r["segment_count"] for r in results}

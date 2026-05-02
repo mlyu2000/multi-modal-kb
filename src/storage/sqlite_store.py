@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """SQLite database store for trading KB metadata."""
 
+import json
 import sqlite3
 from datetime import datetime
 from typing import Optional, Dict, Any, List

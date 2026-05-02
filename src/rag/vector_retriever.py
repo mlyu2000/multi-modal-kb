@@ -153,3 +153,12 @@ class VectorRetriever:
             "concepts": self.search_concepts(query, n_results),
             "strategies": self.search_strategies(query, n_results)
         }
+
+    def get_categories(self) -> List[str]:
+        """Get all available categories from ChromaDB collections."""
+        categories = set()
+        for collection in self.chroma_store.client.list_collections():
+            md = collection.metadata or {}
+            if md.get("category"):
+                categories.add(md["category"])
+        return sorted(list(categories))

@@ -185,3 +185,36 @@ class ChromaStore:
             collection.delete(ids=[document_id])
             return True
         return False
+
+    def get_collection_for_video(self, video_id: str) -> Collection:
+        """Get or create collection based on video's category metadata."""
+        video_meta = self.files.load_json(f"{video_id}_metadata.json")
+        category = video_meta.get("category", "general") if video_meta else "general"
+        return self.get_or_create_collection(category)
+
+    def search_by_category(self, query: str, category: str = None, n_results: int = 5) -> Dict:
+        """
+        Search segments with optional category filter.
+        
+        Args:
+            query: Search query text
+            category: Optional category filter
+            n_results: Number of results to return
+        """
+        if category:
+            collection = self.get_or_create_collection(category)
+            return collection.query(
+                query_texts=[query],
+                n_results=n_results
+            )
+        else:
+            # Search all collections
+            results = []
+            for collection in self.client.list_collections():
+                try:
+                    r = collection.query(query_texts=[query], n_results=n_results)
+                    if r["documents"] and r["documents"][0]:
+                        results.append(r)
+                except:
+                    pass
+            return results

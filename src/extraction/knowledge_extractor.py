@@ -60,7 +60,8 @@ class KnowledgeExtractor:
         self.sqlite = sqlite_store or SQLiteStore()
         self.files = file_store or FileStore()
     
-    def extract_knowledge(self, segment: Dict[str, Any], video_id: str) -> Dict[str, Any]:
+    def extract_knowledge(self, segment: Dict[str, Any], video_id: str,
+                          category: str = "general") -> Dict[str, Any]:
         """Extract knowledge from a multimodal segment.
         
         Args:
@@ -383,3 +384,93 @@ def extract_knowledge(segment: Dict[str, Any], video_id: str) -> Dict[str, Any]:
     """Convenience function to extract knowledge from a segment."""
     extractor = KnowledgeExtractor()
     return extractor.extract_knowledge(segment, video_id)
+
+
+# Category-specific prompts
+CATEGORY_PROMPTS = {
+    "technical_analysis": """You are analyzing a trading education video focused on Technical Analysis.
+    
+Focus on extracting:
+1. Chart patterns (head and shoulders, triangles, flags)
+2. Technical indicators (RSI, MACD, moving averages, Bollinger Bands)
+3. Support and resistance levels
+4. Candlestick patterns
+5. Volume analysis
+6. Timeframe analysis (scalping, day, swing, position)
+7. Entry/exit signals
+8. Risk management in TA context
+
+Format your response as structured JSON with these fields:
+- chart_patterns: list of identified patterns
+- indicators: list of technical indicators with parameters
+- levels: support/resistance levels mentioned
+- signals: entry/exit rules
+- timeframe_recommendations: timeframes discussed
+""",
+    
+    "fundamental_analysis": """You are analyzing a trading education video focused on Fundamental Analysis.
+    
+Focus on extracting:
+1. Company/fundamental metrics (P/E, EPS, debt-to-equity, ROE)
+2. Economic indicators (GDP, inflation, employment)
+3. Sector/industry trends
+4. Earnings reports and guidance
+5. Competitive advantages and moats
+6. Valuation metrics
+7. Macroeconomic factors
+8. Investment thesis
+
+Format your response as structured JSON with these fields:
+- metrics: key fundamental metrics mentioned
+- indicators: economic indicators discussed
+- company_info: company/fund details
+- valuation: valuation analysis
+- thesis: main investment thesis
+""",
+    
+    "psychology": """You are analyzing a trading education video focused on Trading Psychology.
+    
+Focus on extracting:
+1. Cognitive biases (confirmation, loss aversion, overconfidence)
+2. Emotional control techniques
+3. Mental models for decision making
+4. Risk perception and tolerance
+5. Discipline and routine
+6. Journaling and reflection practices
+7. Mindset shifts
+8. Common psychological pitfalls and fixes
+
+Format your response as structured JSON with these fields:
+- biases: cognitive biases discussed
+- techniques: psychological techniques recommended
+- pitfalls: common psychological issues
+- mindset: mindset recommendations
+""",
+    
+    "macro": """You are analyzing a trading education video focused on Macro Markets.
+    
+Focus on extracting:
+1. Central bank policies (FED, ECB, BOJ)
+2. Interest rate expectations
+3. Currency market dynamics
+4. Commodity trends
+5. Global growth outlook
+6. Geopolitical risks
+7. Asset allocation strategies
+8. regime detection (risk-on/risk-off)
+
+Format your response as structured JSON with these fields:
+- central_banks: central bank policies discussed
+- rates: interest rate outlook
+- currencies: currency pairs discussed
+- commodities: commodity trends
+- risks: geopolitical/macroeconomic risks
+""",
+    
+    "general": """You are analyzing a general trading education video.
+    
+Extract both technical and fundamental information about trading strategies,
+market analysis, risk management, and trading psychology presented in the video.
+"""
+}
+
