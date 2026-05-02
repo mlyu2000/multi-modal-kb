@@ -12,7 +12,7 @@ from src.storage.file_store import FileStore
 
 
 from src.embeddings.litellm_embed import LiteLMEmbeddingService
-from src.embeddings.chroma_store import ChromaVectorStore
+from src.storage.chroma_store import ChromaStore
 
 
 
@@ -27,8 +27,7 @@ class SegmentBuilder:
         self.sqlite = sqlite_store or SQLiteStore()
         self.files = file_store or FileStore()
         self.embedding_service = embedding_service or LiteLMEmbeddingService()
-        self.chroma_store = chroma_store or ChromaVectorStore()
-        self.chroma_store.create_collection("trading_kb")
+        self.chroma_store = chroma_store or ChromaStore()
     
 
     def _build_multimodal_text(self, video_id: str, segment_id: str,
@@ -175,20 +174,22 @@ This segment from {video_id} covers content between {self._format_time(start_tim
                 embedding = self.embedding_service.embed(multimodal_text, input_type="passage")
                 
                 # Store in ChromaDB
-                self.chroma_store.add_segment(
+                # Store in ChromaDB (metadata only, embedding stored via add_embeddings method)
+                # Store in ChromaDB with embedding
+                self.chroma_store.add_segment_with_embedding(
                     segment_id=segment_id,
-                    document=multimodal_text,
+                    text=multimodal_text,
+                    embedding=embedding,
                     metadata={
                         "video_id": video_id,
                         "chapter": "Segment",
                         "start_sec": chunk_start,
                         "end_sec": chunk_end,
-                        "visual_type": "slide",  # Default
+                        "visual_type": "slide",  # Default - fix this
                         "transcript": full_transcript,
                         "ocr_text": segment_ocr.strip(),
                         "has_ocr": bool(segment_ocr.strip())
-                    },
-                    embedding=embedding
+                    }
                 )
                 
                 segments.append(segment)

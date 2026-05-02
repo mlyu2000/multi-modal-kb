@@ -13,9 +13,12 @@ class LiteLMEmbeddingService:
     Supports any embedding model configured in LiteLLM.
     """
     
-    def __init__(self, config_path: str = "/home/ml/trading_kb/config.yaml"):
+    def __init__(self, config_path: str = None):
         """Initialize with config or defaults."""
-        self.config = self._load_config(config_path)
+        # Use config path from settings or default to project root
+        from config.settings import PROJECT_ROOT
+        actual_path = config_path or PROJECT_ROOT / "config.yaml"
+        self.config = self._load_config(actual_path)
         
         # Get embedding model config
         embed_model = self.config.get("embedding_model", "nv-embedqa-mistral-7b-v2")

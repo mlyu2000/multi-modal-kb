@@ -49,6 +49,7 @@ class SQLiteStore:
             summary TEXT,
             keyframes_json TEXT,
             created_at TEXT,
+            updated_at TEXT,
             FOREIGN KEY(video_id) REFERENCES videos(id)
         )
         """)
@@ -159,7 +160,16 @@ class SQLiteStore:
         self.conn.commit()
         return True
     
-    def create_frame(self, frame_id: str, video_id: str, timestamp: float, file_path: str,
+    
+    def update_segment(self, segment_id: str, **kwargs) -> bool:
+        """Update segment fields."""
+        set_clause = ", ".join([f"{k}=?" for k in kwargs.keys() if k != "segment_id"])
+        values = list(kwargs.values()) + [segment_id]
+        cursor = self.conn.cursor()
+        cursor.execute(f"UPDATE segments SET {set_clause} WHERE id = ?", values)
+        self.conn.commit()
+        return cursor.rowcount > 0
+def create_frame(self, frame_id: str, video_id: str, timestamp: float, file_path: str,
                     segment_id: Optional[str] = None, ocr_text: Optional[str] = None,
                     visual_description: Optional[str] = None) -> bool:
         """Create a new frame record."""
@@ -259,3 +269,12 @@ class SQLiteStore:
     def close(self):
         """Close database connection."""
         self.conn.close()
+
+    def get_entity(self, entity_id: str) -> Optional[Dict[str, Any]]:
+        """Get an entity by ID."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM entities WHERE id = ?", (entity_id,))
+        row = cursor.fetchone()
+        if row:
+            return dict(row)
+        return None

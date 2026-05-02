@@ -15,9 +15,7 @@ db/chroma/
 __pycache__/
 *.pyc
 .env
-
-# Environment files (keep .env.example)
-.env
+.env.*
 
 # Logs
 *.log

@@ -3,7 +3,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
 import math
 
@@ -14,8 +14,10 @@ except ImportError:
     OPENCV_AVAILABLE = False
 
 try:
-    from pymovements import SceneDetect
-    PYSCEME_AVAILABLE = True
+    import cv2
+    PYSCENE_AVAILABLE = True  # OpenCV has scene detection
+except ImportError:
+    PYSCENE_AVAILABLE = False
 except ImportError:
     PYSCEME_AVAILABLE = False
 
@@ -63,6 +65,9 @@ class FrameExtractor:
         
         try:
             fps = cap.get(cv2.CAP_PROP_FPS)
+            if not fps or fps <= 0:
+                print("Invalid FPS detected, using default 30")
+                fps = 30
             frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             duration = frame_count / fps
             

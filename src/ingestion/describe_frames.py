@@ -11,7 +11,7 @@ from src.storage.sqlite_store import SQLiteStore
 from src.storage.file_store import FileStore
 
 # Import model clients
-from ..models.gemma_client import GemmaVisionClient
+from models.gemma_client import GemmaVisionClient
 
 
 class FrameDescriber:

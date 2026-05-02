@@ -53,43 +53,59 @@ class ChromaStore:
     
     def add_segment(self, segment_id: str, text: str, metadata: Dict[str, Any]) -> str:
         """Add a segment to the vector store."""
-        return self.segments_collection.add(
+        self.segments_collection.add(
             ids=[segment_id],
             documents=[text],
             metadatas=[metadata]
-        )[0]
+        )
+        return segment_id
     
     def add_concept(self, concept_id: str, text: str, metadata: Dict[str, Any]) -> str:
         """Add a concept to the vector store."""
-        return self.concepts_collection.add(
+        self.concepts_collection.add(
             ids=[concept_id],
             documents=[text],
             metadatas=[metadata]
-        )[0]
+        )
+        return concept_id
+    
+    def add_segment_with_embedding(self, segment_id: str, text: str, 
+                                   embedding: List[float], metadata: Dict[str, Any]) -> str:
+        """Add a segment with pre-computed embedding."""
+        self.segments_collection.add(
+            ids=[segment_id],
+            documents=[text],
+            embeddings=[embedding],
+            metadatas=[metadata]
+        )
+        return segment_id
     
     def add_rule(self, rule_id: str, text: str, metadata: Dict[str, Any]) -> str:
         """Add a rule to the vector store."""
-        return self.rules_collection.add(
+        self.rules_collection.add(
             ids=[rule_id],
             documents=[text],
             metadatas=[metadata]
-        )[0]
+        )
+        return rule_id
     
     def add_strategy(self, strategy_id: str, text: str, metadata: Dict[str, Any]) -> str:
         """Add a strategy to the vector store."""
-        return self.strategies_collection.add(
+        self.strategies_collection.add(
             ids=[strategy_id],
             documents=[text],
             metadatas=[metadata]
-        )[0]
+        )
+        return strategy_id
     
     def add_visual_example(self, example_id: str, text: str, metadata: Dict[str, Any]) -> str:
         """Add a visual example to the vector store."""
-        return self.visual_examples_collection.add(
+        self.visual_examples_collection.add(
             ids=[example_id],
             documents=[text],
             metadatas=[metadata]
-        )[0]
+        )
+        return example_id
     
     def search_segments(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
         """Search segments by query."""
@@ -115,6 +131,23 @@ class ChromaStore:
         )
         return self._format_results(results)
     
+    def search_strategies(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
+        """Search for relevant strategies."""
+        results = self.strategies_collection.query(
+            query_texts=[query],
+            n_results=n_results
+        )
+        
+        formatted = []
+        for i, doc in enumerate(results["documents"][0]):
+            formatted.append({
+                "id": results["ids"][0][i],
+                "text": doc,
+                "distance": results["distances"][0][i],
+                "metadata": results["metadatas"][0][i] if results["metadatas"] else {}
+            })
+        return formatted
+
     def _format_results(self, results) -> List[Dict[str, Any]]:
         """Format ChromaDB results."""
         formatted = []

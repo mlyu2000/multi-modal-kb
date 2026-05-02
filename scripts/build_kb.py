@@ -10,7 +10,7 @@ from storage.sqlite_store import SQLiteStore
 from storage.file_store import FileStore
 from storage.chroma_store import ChromaStore
 from storage.neo4j_store import Neo4jStore
-from ingestion.file_store import FileStore as IngestFileStore
+from storage.file_store import FileStore
 from extraction.knowledge_extractor import KnowledgeExtractor
 from graph.graph_loader import GraphLoader
 
@@ -27,9 +27,10 @@ def main():
     
     # Initialize stores
     sqlite = SQLiteStore()
-    files = IngestFileStore()
+    files = FileStore()
     chroma = ChromaStore()
     
+    neo4j = None
     try:
         neo4j = Neo4jStore()
         

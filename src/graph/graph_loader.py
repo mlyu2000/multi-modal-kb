@@ -68,7 +68,10 @@ class GraphLoader:
             # Create Frame nodes
             keyframes = segment.get("keyframes", [])
             for i, frame_path in enumerate(keyframes):
-                frame_id = f"{video_id}_frame_{i}"
+                # Use frame filename stem to avoid collision
+                frame_id = Path(frame_path).stem
+                if not frame_id:
+                    frame_id = f"{video_id}_{segment['segment_id']}_frame_{i}"
                 self.neo4j.create_node(
                     label=Neo4jStore.FRAME,
                     node_id=frame_id,
