@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 import sys
 import os
+from utils.logging import get_logger, log_info, log_warning, log_error
 import argparse
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
